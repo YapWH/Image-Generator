@@ -107,9 +107,9 @@ def main():
         os.makedirs(save_dir)
 
     # training hyperparameters
-    batch_size = 100
-    n_epoch = 50
-    lrate=1e-3
+    batch_size = 1280
+    n_epoch = 200
+    lrate = 1e-2
 
     # construct DDPM noise scheduler
     b_t = (beta2 - beta1) * torch.linspace(0, 1, timesteps + 1, device=device) + beta1

@@ -136,9 +136,9 @@ def main():
     if not os.path.exists(save_dir): os.makedirs(save_dir)
 
     # training hyperparameters
-    batch_size = 100
-    n_epoch = 50
-    lrate=1e-3
+    batch_size = 1280
+    n_epoch = 200
+    lrate = 1e-2
 
     # load dataset
     logging.info("Loading dataset...")
