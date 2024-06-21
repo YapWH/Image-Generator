@@ -6,7 +6,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 
 from network import ContextUnet
-from utils import CustomDataset, perturb_input
+from utils import CustomDataset, perturb_input, get_trainable_params
 
 ################################################################################
 
@@ -48,7 +48,7 @@ def objective(trial):
     timesteps = trial.suggest_int('timestep', 100, 1000)
     beta1 = trial.suggest_float('beta1', 1e-4, 1e-3)
     beta2 = trial.suggest_float('beta2', 0.01, 0.1)
-    n_feat = trial.suggest_int('n_feat', 32, 128)
+    n_feat = trial.suggest_int('n_feat', 64, 256)
     n_cfeat = trial.suggest_int('n_cfeat', 2, 10)
     lrate = trial.suggest_float('lrate', 1e-3, 1e-1)
     n_epoch = trial.suggest_int('n_epoch', 50, 200)
@@ -86,6 +86,11 @@ def main():
 
     with open('study.txt', 'w') as f:
         f.write(str(study.best_trial))
+
+    best_n_feat = trial.params['n_feat']
+    best_n_cfeat = trial.params['n_cfeat']
+    model = ContextUnet(in_channels=3, n_feat=best_n_feat, n_cfeat=best_n_cfeat, height=16)
+    print(f"Number of trainable parameters in the best model: {get_trainable_params(model)}")
 
 if __name__ == "__main__":
     main()
