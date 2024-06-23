@@ -48,12 +48,12 @@ def objective(trial):
     timesteps = trial.suggest_int('timestep', 100, 1000)
     beta1 = trial.suggest_float('beta1', 1e-4, 1e-3)
     beta2 = trial.suggest_float('beta2', 0.01, 0.1)
-    n_feat = trial.suggest_int('n_feat', 64, 256)
+    n_feat = trial.suggest_int('n_feat', 64, 128)
     n_cfeat = trial.suggest_int('n_cfeat', 2, 10)
     lrate = trial.suggest_float('lrate', 1e-3, 1e-1)
     n_epoch = trial.suggest_int('n_epoch', 50, 200)
-    batch_size = trial.suggest_int('batch_size', 128, 1024)
     
+    batch_size = 1280
     height = 16
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, pin_memory=True)
 
@@ -71,7 +71,7 @@ def objective(trial):
 
 def main():
     study = optuna.create_study(direction='minimize')
-    study.optimize(objective, n_trials=100)
+    study.optimize(objective, n_trials=20)
 
     print("Number of finished trials: ", len(study.trials))
 
