@@ -145,25 +145,28 @@ def main():
     dataset = CustomDataset("/data/sprites.npy", "/data/sprites_labels.npy", transform, null_context=False)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=1)
 
-    # initialize teacher model
+    # # initialize teacher model
+    # teacher_model = ContextUnet(in_channels=3, n_feat=n_feat_teacher, n_cfeat=n_cfeat, height=height).to(device)
+    # optimizer = torch.optim.Adam(teacher_model.parameters(), lr=lrate)
+    # criterion = torch.nn.MSELoss()
+    # logging.info(f"Number of trainable parameters in teacher model: {get_trainable_params(teacher_model)}")
+
+    # # train the model
+    # teacher_loss_hist = train(teacher_model, n_epoch, optimizer, lrate, dataloader, device, ab_t, criterion, timesteps)
+
+    # # save the model
+    # if not os.path.exists('./models'): os.makedirs('./models')
+    # torch.save(teacher_model.state_dict(), './models/model.pth')
+    # pickle.dump(ab_t, open('./models/ab_t.pkl', 'wb'))
+    # pickle.dump(a_t, open('./models/a_t.pkl', 'wb'))
+    # pickle.dump(b_t, open('./models/b_t.pkl', 'wb'))
+    # logging.info("Teacher Model saved.")
+
     teacher_model = ContextUnet(in_channels=3, n_feat=n_feat_teacher, n_cfeat=n_cfeat, height=height).to(device)
-    optimizer = torch.optim.Adam(teacher_model.parameters(), lr=lrate)
-    criterion = torch.nn.MSELoss()
-    logging.info(f"Number of trainable parameters in teacher model: {get_trainable_params(teacher_model)}")
-
-    # train the model
-    teacher_loss_hist = train(teacher_model, n_epoch, optimizer, lrate, dataloader, device, ab_t, criterion, timesteps)
-
-    # save the model
-    if not os.path.exists('./models'): os.makedirs('./models')
-    torch.save(teacher_model.state_dict(), './models/model.pth')
-    pickle.dump(ab_t, open('./models/ab_t.pkl', 'wb'))
-    pickle.dump(a_t, open('./models/a_t.pkl', 'wb'))
-    pickle.dump(b_t, open('./models/b_t.pkl', 'wb'))
-    logging.info("Teacher Model saved.")
+    teacher_model.load_state_dict(torch.load('./models/model.pth'))
 
     # initialize student model
-    student_model = ContextUnet(in_channels=3, n_feat=n_feat_student, n_cfeat=n_cfeat, height=height).to(device)
+    student_model = ContextUnet(in_channels=3, n_feat=n_feat_student, n_cfeat=5, height=16).to(device)
     student_optimizer = torch.optim.Adam(student_model.parameters(), lr=lrate)
     logging.info(f"Number of trainable parameters in student model: {get_trainable_params(student_model)}")
 
@@ -171,27 +174,27 @@ def main():
     student_loss_hist = trainStudent(teacher_model, student_model, n_epoch, student_optimizer, lrate, dataloader, device, ab_t, timesteps)
 
     # save the student model
-    torch.save(teacher_model.state_dict(), './models/student_model.pth')
+    torch.save(student_model.state_dict(), './models/student_model.pth')
     logging.info("Student Model saved.")
 
-    # Plot the training loss
-    plt.figure(figsize=(10, 5))
-    plt.plot(teacher_loss_hist, label='teacher')
-    plt.plot(student_loss_hist, label='student')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.title('Training Loss')
-    plt.legend()
-    plt.savefig(os.path.join(save_dir, 'loss.png'))
-    plt.close()
-    logging.info("Training Loss plot saved.")
+    # # Plot the training loss
+    # plt.figure(figsize=(10, 5))
+    # plt.plot(teacher_loss_hist, label='teacher')
+    # plt.plot(student_loss_hist, label='student')
+    # plt.xlabel('Epoch')
+    # plt.ylabel('Loss')
+    # plt.title('Training Loss')
+    # plt.legend()
+    # plt.savefig(os.path.join(save_dir, 'loss.png'))
+    # plt.close()
+    # logging.info("Training Loss plot saved.")
 
 ################################################################################
 
 def test():
     device = torch.device("cuda:0" if torch.cuda.is_available() else torch.device('cpu'))
-    nn_model = ContextUnet(in_channels=3, n_feat=64, n_cfeat=5, height=16).to(device)
-    nn_model.load_state_dict(torch.load('./models/model.pth'))
+    nn_model = ContextUnet(in_channels=3, n_feat=32, n_cfeat=5, height=16).to(device)
+    nn_model.load_state_dict(torch.load('./models/student_model.pth'))
     height = 16
     timesteps = 500
     save_dir = './results/'
