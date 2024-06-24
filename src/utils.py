@@ -147,12 +147,13 @@ def denoise_add_noise(x, t, pred_noise, ab_t, a_t, b_t, z=None):
 
 ################################################################################
 
-def knowledge_distillation_loss(teacher_logits, student_logits, true_labels, alpha=0.5, beta=0.5):
-    soft_target_loss = F.kl_div(F.log_softmax(student_logits, dim=1), F.softmax(teacher_logits, dim=1), reduction='batchmean')
-    mse_loss = F.mse_loss(student_logits, F.one_hot(true_labels, num_classes=student_logits.size(1)).float(), reduction='mean')
-    distillation_loss = alpha * soft_target_loss + beta * mse_loss
+def knowledge_distillation_loss(student_logits, teacher_logits, true_labels, alpha, beta):
+    mse_loss = F.mse_loss(student_logits, true_labels)
+    distillation_loss = F.mse_loss(student_logits, teacher_logits)
     
-    return distillation_loss
+    loss = alpha * distillation_loss + beta * mse_loss
+    
+    return loss
 
 ################################################################################
 
