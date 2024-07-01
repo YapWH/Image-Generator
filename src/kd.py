@@ -132,7 +132,7 @@ def main():
     n_feat_student = 32 # 32 hidden dimension feature
     n_cfeat = 5 # context vector is of size 5
     height = 16 # 16x16 image
-    save_dir = './results/'
+    save_dir = '../results/'
     if not os.path.exists(save_dir): os.makedirs(save_dir)
 
     # training hyperparameters
@@ -142,7 +142,7 @@ def main():
 
     # load dataset
     logging.info("Loading dataset...")
-    dataset = CustomDataset("./data/sprites.npy", "./data/sprites_labels.npy", transform, null_context=False)
+    dataset = CustomDataset("../data/sprites.npy", "../data/sprites_labels.npy", transform, null_context=False)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=1)
 
     # initialize teacher model
@@ -155,15 +155,15 @@ def main():
     teacher_loss_hist = train(teacher_model, n_epoch, optimizer, lrate, dataloader, device, ab_t, criterion, timesteps)
 
     # save the model
-    if not os.path.exists('./models'): os.makedirs('./models')
-    torch.save(teacher_model.state_dict(), './models/model.pth')
-    pickle.dump(ab_t, open('./models/ab_t.pkl', 'wb'))
-    pickle.dump(a_t, open('./models/a_t.pkl', 'wb'))
-    pickle.dump(b_t, open('./models/b_t.pkl', 'wb'))
+    if not os.path.exists('../models'): os.makedirs('../models')
+    torch.save(teacher_model.state_dict(), '../models/model.pth')
+    pickle.dump(ab_t, open('../models/ab_t.pkl', 'wb'))
+    pickle.dump(a_t, open('../models/a_t.pkl', 'wb'))
+    pickle.dump(b_t, open('../models/b_t.pkl', 'wb'))
     logging.info("Teacher Model saved.")
 
     teacher_model = ContextUnet(in_channels=3, n_feat=n_feat_teacher, n_cfeat=n_cfeat, height=height).to(device)
-    teacher_model.load_state_dict(torch.load('./models/model.pth'))
+    teacher_model.load_state_dict(torch.load('../models/model.pth'))
 
     # initialize student model
     student_model = ContextUnet(in_channels=3, n_feat=n_feat_student, n_cfeat=5, height=16).to(device)
@@ -174,7 +174,7 @@ def main():
     student_loss_hist = trainStudent(teacher_model, student_model, n_epoch, student_optimizer, lrate, dataloader, device, ab_t, timesteps)
 
     # save the student model
-    torch.save(student_model.state_dict(), './models/student_model.pth')
+    torch.save(student_model.state_dict(), '../models/student_model.pth')
     logging.info("Student Model saved.")
 
     # Plot the training loss
@@ -193,17 +193,17 @@ def main():
 
 def test():
     device = torch.device("cuda:0" if torch.cuda.is_available() else torch.device('cpu'))
-    nn_model = ContextUnet(in_channels=3, n_feat=32, n_cfeat=3, height=16).to(device)
-    nn_model.load_state_dict(torch.load('./models/(With Optuna) student_model.pth'))
+    nn_model = ContextUnet(in_channels=3, n_feat=32, n_cfeat=5, height=16).to(device)
+    nn_model.load_state_dict(torch.load('../models/student_model.pth'))
     height = 16
     timesteps = 500
-    save_dir = './results/'
+    save_dir = '../results/'
     if not os.path.exists(save_dir): os.makedirs(save_dir)
     
     # load diffusion hyperparameters
-    ab_t = pickle.load(open('./models/ab_t.pkl', 'rb'))
-    a_t = pickle.load(open('./models/a_t.pkl', 'rb'))
-    b_t = pickle.load(open('./models/b_t.pkl', 'rb'))
+    ab_t = pickle.load(open('../models/ab_t.pkl', 'rb'))
+    a_t = pickle.load(open('../models/a_t.pkl', 'rb'))
+    b_t = pickle.load(open('../models/b_t.pkl', 'rb'))
 
     # sample from the model
     n_sample = 32
