@@ -19,7 +19,7 @@ d = random.randint(0, 9)
 
 ################################################################################################
 
-# test()
+#test()
 
 ################################################################################################
 
@@ -29,7 +29,7 @@ d = random.randint(0, 9)
 
 def Test(A):
 	if A == f"{a,b,c,d}":
-		img_dir = 'E:/Project/Image-Generator/results'
+		img_dir = 'E:\AML\Image-Generator\results'
 		imgs_List=[ os.path.join(img_dir,name) for name in sorted(os.listdir(img_dir)) if  name.endswith(('.png','.jpg','.webp','.tif','.jpeg','.gif'))]
 		return imgs_List
 	#test()
