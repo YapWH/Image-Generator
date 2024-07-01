@@ -206,10 +206,10 @@ def test():
     b_t = pickle.load(open('../models/b_t.pkl', 'rb'))
 
     # sample from the model
-    n_sample = 32
+    n_sample = 4
     samples, intermediate = sample_ddpm(nn_model, n_sample, height, timesteps, device, ab_t, a_t, b_t, save_rate=20)
-    animation_ddpm = plot_sample(intermediate, 32, 4, save_dir, f"{time()}", None, save=True)
-    plot_grid(samples, n_sample, 4, save_dir, timesteps)
+    animation_ddpm = plot_sample(intermediate, n_sample, 2, save_dir, f"{time()}", None, save=True)
+    plot_grid(samples, n_sample, 2, save_dir, timesteps)
 
 ################################################################################
 
