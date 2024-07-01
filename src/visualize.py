@@ -4,16 +4,30 @@ import random
 from PIL import Image
 import matplotlib.pyplot as plt
 import os
+import torch
+from torchvision import transforms
+from torch.utils.data import DataLoader
+import pickle
+import logging
+from tqdm import tqdm
+from kd import test
 
 a = random.randint(0, 9)
 b = random.randint(0, 9)
 c = random.randint(0, 9)
 d = random.randint(0, 9)
 
-image_path = 'Knowledge Distillation.png' 
-image = Image.open(image_path)
+################################################################################################
 
-def test(A):
+test()
+
+################################################################################################
+
+
+
+################################################################################################
+
+def Test(A):
 	if A == f"{a,b,c,d}":
 		img_dir = 'E:\AML\Image-Generator'
 		imgs_List=[ os.path.join(img_dir,name) for name in sorted(os.listdir(img_dir)) if  name.endswith(('.png','.jpg','.webp','.tif','.jpeg'))]
@@ -24,7 +38,7 @@ def test(A):
 
 # demo = gr.Interface(sepia, gr.Image(), "image")
 demo = gr.Interface(
-    test,
+    Test,
     [
         gr.Radio([f"{a,b,c,d}", "(6,6,5,4)", "(7,4,6,4)"], label="Validation", info=f"Please choose the right validation code before you start!    Prompt  :  {a,b,c,d}"),
     ],
