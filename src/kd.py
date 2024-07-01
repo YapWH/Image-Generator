@@ -66,7 +66,7 @@ def trainStudent(teacher_model, student_model, n_epoch, optimizer, lr, dataloade
                 # use network to recover noise
                 teacher_noise = teacher_model(x_pert, t / timesteps)
                 student_noise = student_model(x_pert, t / timesteps)
-                loss = knowledge_distillation_loss(teacher_noise, student_noise, noise)
+                loss = knowledge_distillation_loss(student_noise, teacher_noise, noise)
                 loss.backward()
                 total_loss += loss.item()
 
@@ -120,13 +120,13 @@ def main():
     beta2 = 0.02
 
     # construct DDPM noise scheduler
+    device = torch.device("cuda:0" if torch.cuda.is_available() else torch.device('cpu'))
     b_t = (beta2 - beta1) * torch.linspace(0, 1, timesteps + 1, device=device) + beta1
     a_t = 1 - b_t
     ab_t = torch.cumsum(a_t.log(), dim=0).exp()    
     ab_t[0] = 1
 
     # network hyperparameters
-    device = torch.device("cuda:0" if torch.cuda.is_available() else torch.device('cpu'))
     logging.info(f"Using device: {device}")
     n_feat_teacher = 64 # 64 hidden dimension feature
     n_feat_student = 32 # 32 hidden dimension feature
@@ -142,7 +142,7 @@ def main():
 
     # load dataset
     logging.info("Loading dataset...")
-    dataset = CustomDataset("/data/sprites.npy", "/data/sprites_labels.npy", transform, null_context=False)
+    dataset = CustomDataset("./data/sprites.npy", "./data/sprites_labels.npy", transform, null_context=False)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=1)
 
     # initialize teacher model
@@ -162,8 +162,8 @@ def main():
     pickle.dump(b_t, open('./models/b_t.pkl', 'wb'))
     logging.info("Teacher Model saved.")
 
-    # teacher_model = ContextUnet(in_channels=3, n_feat=n_feat_teacher, n_cfeat=n_cfeat, height=height).to(device)
-    # teacher_model.load_state_dict(torch.load('./models/model.pth'))
+    teacher_model = ContextUnet(in_channels=3, n_feat=n_feat_teacher, n_cfeat=n_cfeat, height=height).to(device)
+    teacher_model.load_state_dict(torch.load('./models/model.pth'))
 
     # initialize student model
     student_model = ContextUnet(in_channels=3, n_feat=n_feat_student, n_cfeat=5, height=16).to(device)
@@ -193,8 +193,8 @@ def main():
 
 def test():
     device = torch.device("cuda:0" if torch.cuda.is_available() else torch.device('cpu'))
-    nn_model = ContextUnet(in_channels=3, n_feat=32, n_cfeat=5, height=16).to(device)
-    nn_model.load_state_dict(torch.load('./models/student_model.pth'))
+    nn_model = ContextUnet(in_channels=3, n_feat=32, n_cfeat=3, height=16).to(device)
+    nn_model.load_state_dict(torch.load('./models/(With Optuna) student_model.pth'))
     height = 16
     timesteps = 500
     save_dir = './results/'

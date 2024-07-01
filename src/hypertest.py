@@ -42,13 +42,13 @@ transform = transforms.Compose([
         transforms.Normalize((0.5,), (0.5,))
     ])
 
-dataset = CustomDataset("/data/sprites.npy", "/data/sprites_labels.npy", transform, null_context=False)
+dataset = CustomDataset("./data/sprites.npy", "./data/sprites_labels.npy", transform, null_context=False)
 
 def objective(trial):
     timesteps = trial.suggest_int('timestep', 100, 1000)
     beta1 = trial.suggest_float('beta1', 1e-4, 1e-3)
     beta2 = trial.suggest_float('beta2', 0.01, 0.1)
-    n_feat = trial.suggest_int('n_feat', 64, 128)
+    n_feat = trial.suggest_int('n_feat', 32, 128, step=8)  # Ensure n_feat is a multiple of 8
     n_cfeat = trial.suggest_int('n_cfeat', 2, 10)
     lrate = trial.suggest_float('lrate', 1e-3, 1e-1)
     n_epoch = trial.suggest_int('n_epoch', 50, 200)
@@ -68,6 +68,7 @@ def objective(trial):
     optimizer = torch.optim.Adam(nn_model.parameters(), lr=lrate)
 
     loss_hist = train(nn_model, n_epoch, optimizer, lrate, dataloader, device, ab_t, timesteps)
+    return loss_hist  # Ensure a scalar value is returned
 
 def main():
     study = optuna.create_study(direction='minimize')
